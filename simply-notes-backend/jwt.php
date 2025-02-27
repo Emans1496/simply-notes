@@ -1,6 +1,8 @@
 <?php
 // jwt.php
 
+$jwt_secret = "chiaveSuperSegreta123"; // Cambia questa chiave con qualcosa di più sicuro
+
 // Funzione per fare il base64 URL safe
 function base64url_encode($data) {
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');

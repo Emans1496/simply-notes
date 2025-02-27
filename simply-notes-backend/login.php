@@ -1,10 +1,22 @@
 <?php
+// Abilita CORS per qualsiasi dominio (*), oppure specifica un dominio esatto
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Access-Control-Allow-Credentials: true");
+
+// Gestisce le richieste di preflight (OPTIONS)
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 // login.php
 require 'config.php';
 require 'jwt.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = isset($_POST['email']) ? $conn->real_escape_string($_POST['email']) : '';
+    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
     $password = isset($_POST['password']) ? $_POST['password'] : '';
 
     if(empty($email) || empty($password)) {
@@ -12,9 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    // Cerca l'utente
-    $sql = "SELECT * FROM users WHERE email = '$email'";
-    $result = $conn->query($sql);
+    // Usa prepared statement per maggiore sicurezza
+    $stmt = $conn->prepare("SELECT id, email, password FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
     if($result->num_rows == 1) {
         $user = $result->fetch_assoc();
         if(password_verify($password, $user['password'])) {

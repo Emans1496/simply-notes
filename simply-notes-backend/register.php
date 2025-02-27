@@ -1,4 +1,16 @@
 <?php
+// Abilita CORS per qualsiasi dominio (*), oppure specifica un dominio esatto
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Access-Control-Allow-Credentials: true");
+
+// Gestisce le richieste di preflight (OPTIONS)
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 // register.php
 require 'config.php';
 
