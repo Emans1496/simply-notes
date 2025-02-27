@@ -1,17 +1,14 @@
 <?php
-// Abilita CORS per qualsiasi dominio (*), oppure specifica un dominio esatto
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Access-Control-Allow-Credentials: true");
 
-// Gestisce le richieste di preflight (OPTIONS)
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
-// login.php
 require 'config.php';
 require 'jwt.php';
 
@@ -24,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    // Usa prepared statement per maggiore sicurezza
     $stmt = $conn->prepare("SELECT id, email, password FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
@@ -33,11 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if($result->num_rows == 1) {
         $user = $result->fetch_assoc();
         if(password_verify($password, $user['password'])) {
-            // Genera il token JWT
             $payload = [
                 "user_id" => $user['id'],
                 "email"   => $user['email'],
-                "exp"     => time() + (60 * 60 * 24) // valido per 1 giorno
+                "exp"     => time() + (60 * 60 * 24)
             ];
             $token = jwt_encode($payload, $jwt_secret);
             echo json_encode(["status" => "success", "token" => $token]);
