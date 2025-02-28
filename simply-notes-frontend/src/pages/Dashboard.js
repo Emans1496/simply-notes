@@ -12,7 +12,11 @@ import {
   DialogActions,
   TextField,
   IconButton,
-  Stack
+  Stack,
+  Snackbar,
+  Alert,
+  Grid,
+  MenuItem
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -33,7 +37,20 @@ const Dashboard = () => {
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
 
-  // Al mount (o quando cambia il token), carichiamo le note
+  // Stato per ricerca
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Stato per ordinamento
+  // Options: date_desc, date_asc, title_asc, title_desc
+  const [sortOption, setSortOption] = useState('date_desc');
+
+  // Stato per Snackbar
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' // "success" | "error" | "info" | "warning"
+  });
+
   useEffect(() => {
     if (!token) {
       window.location.href = "/login";
@@ -43,7 +60,6 @@ const Dashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  // Legge tutte le note (GET su notes.php)
   const fetchNotes = async () => {
     try {
       const res = await fetch('https://simply-notes-production.up.railway.app/notes.php', {
@@ -63,10 +79,19 @@ const Dashboard = () => {
     }
   };
 
-  // Logout
   const handleLogout = () => {
     localStorage.removeItem('token');
     window.location.href = '/login';
+  };
+
+  // Mostra snackbar
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  // Chiude snackbar
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   // --- Aggiunta nuova nota (action=add)
@@ -86,16 +111,16 @@ const Dashboard = () => {
       });
       const data = await res.json();
       if (data.status === 'success') {
-        // Ricarica le note e chiudi il dialog
         fetchNotes();
         setOpenAdd(false);
         setNewTitle('');
         setNewContent('');
+        showSnackbar("Nota aggiunta con successo!", "success");
       } else {
-        setError(data.message);
+        showSnackbar(data.message, "error");
       }
     } catch (err) {
-      setError('Errore di connessione al server');
+      showSnackbar('Errore di connessione al server', "error");
     }
   };
 
@@ -130,11 +155,12 @@ const Dashboard = () => {
         fetchNotes();
         setOpenEdit(false);
         setSelectedNote(null);
+        showSnackbar("Nota aggiornata con successo!", "success");
       } else {
-        setError(data.message);
+        showSnackbar(data.message, "error");
       }
     } catch (err) {
-      setError('Errore di connessione al server');
+      showSnackbar('Errore di connessione al server', "error");
     }
   };
 
@@ -156,13 +182,36 @@ const Dashboard = () => {
       const data = await res.json();
       if (data.status === 'success') {
         fetchNotes();
+        showSnackbar("Nota eliminata con successo!", "success");
       } else {
-        setError(data.message);
+        showSnackbar(data.message, "error");
       }
     } catch (err) {
-      setError('Errore di connessione al server');
+      showSnackbar('Errore di connessione al server', "error");
     }
   };
+
+  // Filtra le note in base al termine di ricerca
+  const filteredNotes = notes.filter(note =>
+    note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    note.content.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Ordina le note in base all'opzione scelta
+  const sortedNotes = [...filteredNotes].sort((a, b) => {
+    switch (sortOption) {
+      case 'date_desc':
+        return new Date(b.created_at) - new Date(a.created_at);
+      case 'date_asc':
+        return new Date(a.created_at) - new Date(b.created_at);
+      case 'title_asc':
+        return a.title.localeCompare(b.title);
+      case 'title_desc':
+        return b.title.localeCompare(a.title);
+      default:
+        return 0;
+    }
+  });
 
   return (
     <Container sx={{ marginTop: 4 }}>
@@ -179,6 +228,30 @@ const Dashboard = () => {
         </div>
       </Stack>
 
+      {/* Campo di ricerca e ordinamento */}
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 2 }}>
+        <TextField
+          label="Cerca nota..."
+          variant="outlined"
+          fullWidth
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <TextField
+          select
+          label="Ordina per"
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+          variant="outlined"
+          sx={{ minWidth: 180 }}
+        >
+          <MenuItem value="date_desc">Data (più recenti-più vecchie)</MenuItem>
+          <MenuItem value="date_asc">Data (più vecchi-più recenti)</MenuItem>
+          <MenuItem value="title_asc">Titolo A-Z</MenuItem>
+          <MenuItem value="title_desc">Titolo Z-A</MenuItem>
+        </TextField>
+      </Stack>
+
       {/* Error message */}
       {error && (
         <Typography color="error" sx={{ mb: 2 }}>
@@ -186,25 +259,29 @@ const Dashboard = () => {
         </Typography>
       )}
 
-      {/* List of notes */}
-      {notes.map(note => (
-        <Card key={note.id} sx={{ mb: 2 }}>
-          <CardContent>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Typography variant="h6">{note.title}</Typography>
-              <div>
-                <IconButton color="primary" onClick={() => handleEditOpen(note)}>
-                  <EditIcon />
-                </IconButton>
-                <IconButton color="error" onClick={() => handleDeleteNote(note.id)}>
-                  <DeleteIcon />
-                </IconButton>
-              </div>
-            </Stack>
-            <Typography>{note.content}</Typography>
-          </CardContent>
-        </Card>
-      ))}
+      {/* Lista delle note in Grid */}
+      <Grid container spacing={2}>
+        {sortedNotes.map(note => (
+          <Grid item xs={12} sm={6} md={4} key={note.id}>
+            <Card>
+              <CardContent>
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Typography variant="h6">{note.title}</Typography>
+                  <div>
+                    <IconButton color="primary" onClick={() => handleEditOpen(note)}>
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton color="error" onClick={() => handleDeleteNote(note.id)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </div>
+                </Stack>
+                <Typography>{note.content}</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
 
       {/* Dialog per aggiungere una nota */}
       <Dialog open={openAdd} onClose={() => setOpenAdd(false)}>
@@ -261,6 +338,18 @@ const Dashboard = () => {
           <Button variant="contained" onClick={handleEditNote}>Salva</Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar per notifiche */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
