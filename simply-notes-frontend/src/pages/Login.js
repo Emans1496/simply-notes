@@ -1,5 +1,14 @@
+// src/pages/Login.js
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import {
+  Container,
+  Card,
+  CardContent,
+  TextField,
+  Button,
+  Typography
+} from '@mui/material';
 
 const Login = () => {
   const [email, setEmail]       = useState('');
@@ -17,36 +26,66 @@ const Login = () => {
         body: new URLSearchParams({ email, password })
       });
       const data = await res.json();
-      if(data.status === 'success'){
+
+      console.log('Login response:', data);
+
+      if (data.status === 'success') {
         localStorage.setItem('token', data.token);
         navigate('/dashboard');
+        window.location.reload(); //non si rendereizza correttamente alla dashboard
       } else {
         setError(data.message);
       }
-    } catch(err) {
+    } catch (err) {
       setError('Errore di connessione al server');
     }
   };
   
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-full max-w-sm">
-        <h2 className="text-2xl mb-4">Login</h2>
-        {error && <div className="mb-4 text-red-500">{error}</div>}
-        <div className="mb-4">
-          <label className="block mb-1">Email</label>
-          <input type="email" className="w-full border px-3 py-2 rounded" value={email} onChange={(e)=>setEmail(e.target.value)} required />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1">Password</label>
-          <input type="password" className="w-full border px-3 py-2 rounded" value={password} onChange={(e)=>setPassword(e.target.value)} required />
-        </div>
-        <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded">Login</button>
-        <p className="mt-4 text-center">
-          Non hai un account? <Link to="/register" className="text-blue-500">Registrati</Link>
-        </p>
-      </form>
-    </div>
+    <Container maxWidth="sm" sx={{ marginTop: 8 }}>
+      <Card>
+        <CardContent>
+          <Typography variant="h5" gutterBottom>Login</Typography>
+          {error && (
+            <Typography color="error" sx={{ marginBottom: 2 }}>
+              {error}
+            </Typography>
+          )}
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="Email"
+              fullWidth
+              margin="normal"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <TextField
+              label="Password"
+              fullWidth
+              margin="normal"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <Button
+              variant="contained"
+              type="submit"
+              fullWidth
+              sx={{ marginTop: 2 }}
+            >
+              Login
+            </Button>
+
+            <Typography align="center" sx={{ marginTop: 2 }}>
+              Non hai un account? <Link to="/register">Registrati</Link>
+            </Typography>
+          </form>
+        </CardContent>
+      </Card>
+    </Container>
   );
 };
 

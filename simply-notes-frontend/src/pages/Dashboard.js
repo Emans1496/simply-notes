@@ -1,4 +1,6 @@
+// src/pages/Dashboard.js
 import React, { useState, useEffect } from 'react';
+import { Container, Typography, Button, Card, CardContent } from '@mui/material';
 
 const Dashboard = () => {
   const [notes, setNotes] = useState([]);
@@ -7,7 +9,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!token) {
-      window.location.href = "/login"; 
+      window.location.href = "/login";
       return;
     }
 
@@ -20,12 +22,12 @@ const Dashboard = () => {
           }
         });
         const data = await res.json();
-        if(data.status === 'success'){
+        if (data.status === 'success') {
           setNotes(data.notes);
         } else {
           setError(data.message);
         }
-      } catch(err) {
+      } catch (err) {
         setError('Errore di connessione al server');
       }
     };
@@ -39,21 +41,39 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-3xl">Dashboard</h2>
-        <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
+    <Container sx={{ marginTop: 4 }}>
+      {/* Header */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '16px'
+      }}>
+        <Typography variant="h4">Dashboard</Typography>
+        <Button variant="contained" color="error" onClick={handleLogout}>
+          Logout
+        </Button>
       </div>
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-      <ul>
-        {notes.map(note => (
-          <li key={note.id} className="bg-white p-4 rounded shadow mb-2">
-            <h3 className="text-xl font-bold">{note.title}</h3>
-            <p>{note.content}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
+
+      {/* Error message */}
+      {error && (
+        <Typography color="error" sx={{ marginBottom: 2 }}>
+          {error}
+        </Typography>
+      )}
+
+      {/* List of notes */}
+      {notes.map(note => (
+        <Card key={note.id} sx={{ marginBottom: 2 }}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              {note.title}
+            </Typography>
+            <Typography>{note.content}</Typography>
+          </CardContent>
+        </Card>
+      ))}
+    </Container>
   );
 };
 
