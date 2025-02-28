@@ -16,7 +16,7 @@ const Register = () => {
     }
 
     try {
-      const res = await fetch('https://simply-notes.wuaze.com/register.php', {
+      const res = await fetch('https://simply-notes-production.up.railway.app/register.php', {
         method: 'POST',
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ email, password })

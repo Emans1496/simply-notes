@@ -13,7 +13,7 @@ const Dashboard = () => {
 
     const fetchNotes = async () => {
       try {
-        const res = await fetch('https://simply-notes.wuaze.com/notes.php', {
+        const res = await fetch('https://simply-notes-production.up.railway.app/notes.php', {
           method: 'GET',
           headers: {
             'Authorization': 'Bearer ' + token

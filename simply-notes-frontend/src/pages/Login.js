@@ -11,7 +11,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch('https://simply-notes.wuaze.com/login.php', {
+      const res = await fetch('https://simply-notes-production.up.railway.app/login.php', {
         method: 'POST',
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ email, password })
