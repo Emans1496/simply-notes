@@ -2,12 +2,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
+  Box,
   Container,
   Card,
   CardContent,
   TextField,
   Button,
-  Typography
+  Typography,
+  GlobalStyles
 } from '@mui/material';
 
 const Register = () => {
@@ -43,59 +45,101 @@ const Register = () => {
   };
   
   return (
-    <Container maxWidth="sm" sx={{ marginTop: 8 }}>
-      <Card>
-        <CardContent>
-          <Typography variant="h5" gutterBottom>Registrazione</Typography>
-          {error && (
-            <Typography color="error" sx={{ marginBottom: 2 }}>
-              {error}
-            </Typography>
-          )}
-          <form onSubmit={handleSubmit}>
-            <TextField
-              label="Email"
-              fullWidth
-              margin="normal"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <TextField
-              label="Password"
-              fullWidth
-              margin="normal"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <TextField
-              label="Conferma Password"
-              fullWidth
-              margin="normal"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-            <Button
-              variant="contained"
-              type="submit"
-              fullWidth
-              sx={{ marginTop: 2 }}
-            >
-              Registrati
-            </Button>
+    <>
+      {/* Animazione gradiente globale (stessa di Login.js) */}
+      <GlobalStyles styles={{
+        '@keyframes gradientAnimation': {
+          '0%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+          '100%': { backgroundPosition: '0% 50%' },
+        }
+      }} />
 
-            <Typography align="center" sx={{ marginTop: 2 }}>
-              Hai già un account? <Link to="/login">Login</Link>
-            </Typography>
-          </form>
-        </CardContent>
-      </Card>
-    </Container>
+      {/* Sfondo animato a pieno schermo */}
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(270deg,rgb(21, 202, 12),rgb(123, 160, 254), #86a8e7, #91eac9)',
+          backgroundSize: '400% 400%',
+          animation: 'gradientAnimation 12s ease infinite',
+          p: 2
+        }}
+      >
+        <Container maxWidth="xs">
+          {/* Logo opzionale - stesso stile di Login */}
+          <img
+            src="/simplyNotesLogo.png"
+            alt="Logo"
+            style={{
+              display: 'block',
+              margin: '0 auto',
+              marginBottom: '20px',
+              width: '300px'
+            }}
+          />
+
+          <Card sx={{ boxShadow: 3 }}>
+            <CardContent>
+              <Typography variant="h5" gutterBottom align="center">
+                Iscriviti
+              </Typography>
+
+              {error && (
+                <Typography color="error" sx={{ mb: 2, textAlign: 'center' }}>
+                  {error}
+                </Typography>
+              )}
+
+              <form onSubmit={handleSubmit}>
+                <TextField
+                  label="Email"
+                  fullWidth
+                  margin="normal"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                <TextField
+                  label="Password"
+                  fullWidth
+                  margin="normal"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <TextField
+                  label="Conferma Password"
+                  fullWidth
+                  margin="normal"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+
+                <Button
+                  variant="contained"
+                  type="submit"
+                  fullWidth
+                  sx={{ mt: 2 }}
+                >
+                  Registrati
+                </Button>
+
+                <Typography align="center" variant="body2" sx={{ mt: 2 }}>
+                  Hai già un account? <Link to="/login">Login</Link>
+                </Typography>
+              </form>
+            </CardContent>
+          </Card>
+        </Container>
+      </Box>
+    </>
   );
 };
 
