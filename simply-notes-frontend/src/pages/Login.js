@@ -36,7 +36,7 @@ const Login = () => {
         localStorage.setItem('token', data.token);
         window.location.href = '/dashboard';
         navigate('/dashboard');
-      } else {
+        } else {
         setError(data.message);
       }
     } catch (err) {

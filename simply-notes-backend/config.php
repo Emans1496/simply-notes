@@ -1,9 +1,9 @@
 <?php
-$host = "nozomi.proxy.rlwy.net:33737"; // Nuovo host
+$host = "nozomi.proxy.rlwy.net:33737";
 $username = "root"; 
 $password = "yfGCtvOrPEeoRSUJUlvgQRBghsmjjhhX";
 $database = "railway";
-$port = 33737; // Nuova porta
+$port = 33737;
 
 // Connessione al database
 $conn = new mysqli($host, $username, $password, $database, $port);

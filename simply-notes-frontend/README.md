@@ -1,70 +1,119 @@
-# Getting Started with Create React App
+# Simply Notes
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+**Simply Notes** è una web app per la gestione delle note, realizzata con un approccio full-stack. L'app consente agli utenti di registrarsi, effettuare il login e gestire le proprie note (creare, modificare, eliminare e visualizzare).
 
-## Available Scripts
+L'app utilizza:
+- Un **backend** in PHP con JWT per l'autenticazione e MySQL (ospitato su Railway)
+- Un **frontend** sviluppato in React con Material UI per un'interfaccia moderna e responsive
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## Struttura dell'Applicazione
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Backend
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **PHP con JWT**
+  - `config.php`: Gestisce la connessione a MySQL (utilizzando variabili d'ambiente o valori hardcoded su Railway).
+  - `jwt.php`: Contiene le funzioni per generare e verificare i token JWT.
+  - `notes.php`: Un unico endpoint che gestisce tutte le operazioni CRUD sulle note.
+    - **GET**: Restituisce tutte le note dell'utente autenticato.
+    - **POST**: In base al parametro `action` (add, update, delete), esegue l'inserimento, l'aggiornamento o l'eliminazione di una nota.
 
-### `npm test`
+- **Altri endpoint**
+  - `login.php`: Gestisce l'autenticazione, verifica le credenziali e restituisce un token JWT.
+  - `register.php`: Gestisce la registrazione degli utenti.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Frontend
 
-### `npm run build`
+- **React & Material UI**
+  - **Login.js**
+    - Pagina di login con uno sfondo animato a gradiente e una card centrata.
+    - Comunica con il backend per autenticare l'utente e, in caso di successo, reindirizza alla dashboard.
+  - **Register.js**
+    - Pagina di registrazione con lo stesso stile di Login (sfondo animato, card centrata, form pulito).
+  - **Dashboard.js**
+    - Visualizza l'elenco delle note in una griglia responsive.
+    - Funzionalità CRUD:
+      - **Creazione**: Tramite un dialog con transizione Slide.
+      - **Modifica**: Tramite un dialog per aggiornare una nota.
+      - **Eliminazione**: Tramite un pulsante (icona Delete) con conferma.
+    - Include una barra per la ricerca e un menu a tendina per l'ordinamento (per data o titolo).
+    - Fornisce feedback all'utente tramite uno Snackbar.
+    - Il design è reso moderno grazie a uno sfondo animato e componenti Material UI.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Funzionamento dell'App
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. **Registrazione e Login**
+   - Gli utenti si registrano tramite `register.php` e poi si autenticano con `login.php`.
+   - Al login, il backend restituisce un token JWT che viene salvato nel `localStorage` del browser.
+   - Se il token è presente, l'utente viene reindirizzato alla Dashboard.
 
-### `npm run eject`
+2. **Dashboard**
+   - La Dashboard carica le note dell'utente tramite una richiesta GET a `notes.php`.
+   - L'utente può filtrare le note tramite un campo di ricerca e ordinare i risultati (per data o titolo).
+   - Tramite i dialog di aggiunta e modifica, l'utente può creare e aggiornare le note.
+   - Le note possono essere eliminate tramite il pulsante di eliminazione (con conferma).
+   - Ogni operazione (aggiunta, aggiornamento, eliminazione) mostra un feedback visivo tramite uno Snackbar.
+   - Il design include un **sfondo animato** a gradiente, garantendo coerenza visiva con le pagine di Login e Register.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+3. **Navigazione e Tema**
+   - La navigazione tra le pagine è gestita da React Router.
+   - Il tema chiaro/scuro è gestito globalmente (in `App.js`) e può essere attivato tramite un toggle (inserito nel Drawer).
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Tecnologie e Strumenti
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- **Frontend:**
+  - **React**: per la creazione dell'interfaccia utente.
+  - **Material UI (MUI)**: per componenti UI moderni e responsive.
+  - **React Router**: per la navigazione tra le pagine.
+  - **GlobalStyles** di MUI: per definire stili globali (es. animazione del background).
+  - **Fetch API**: per la comunicazione con il backend.
 
-## Learn More
+- **Backend:**
+  - **PHP**: per la logica di autenticazione e gestione delle note.
+  - **JWT**: per l'autenticazione degli utenti.
+  - **MySQL**: come database per salvare utenti e note.
+  - **Railway**: per l'hosting del backend e del database.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Considerazioni Finali
 
-### Code Splitting
+- **Design Moderno e Coerente:**  
+  L'app utilizza uno sfondo animato a gradiente e card centrati, offrendo un'esperienza visiva moderna sia su dispositivi mobili che desktop.
+  
+- **Feedback Immediato:**  
+  Grazie all'uso di Snackbar e Skeleton, l'utente riceve riscontri immediati durante le operazioni e il caricamento dei dati.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- **Sicurezza:**  
+  L'autenticazione tramite JWT e il controllo del token sul frontend assicurano che solo gli utenti autorizzati possano accedere alle note.
 
-### Analyzing the Bundle Size
+- **Scalabilità:**  
+  La struttura modulare (componenti Login, Register, Dashboard) e l'endpoint unico per le note permettono futuri aggiornamenti e l'aggiunta di nuove funzionalità.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## Flusso dell'Applicazione
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+1. **Registrazione:**  
+   L'utente si registra tramite `register.php`, fornendo email e password.
 
-### Advanced Configuration
+2. **Login:**  
+   L'utente effettua il login tramite `login.php`. Se le credenziali sono corrette, il backend restituisce un token JWT che viene salvato nel `localStorage`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+3. **Dashboard:**  
+   - Vengono caricate le note dell'utente tramite `notes.php`.
+   - L'utente può cercare, ordinare, aggiungere, modificare ed eliminare le note.
+   - Le operazioni generano notifiche visive tramite Snackbar.
+   - Il design responsive e lo sfondo animato garantiscono un'esperienza ottimale su mobile e desktop.
 
-### Deployment
+4. **Navigazione e Tema:**  
+   - La navigazione tra le pagine è gestita tramite React Router.
+   - Il Drawer laterale offre opzioni come il logout e il toggle del tema chiaro/scuro.
+   - Il tema è gestito globalmente (in `App.js`) e si applica uniformemente a tutte le pagine.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
