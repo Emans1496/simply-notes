@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 require 'config.php';
+require 'controllers/UserController.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = isset($_POST['email']) ? $conn->real_escape_string($_POST['email']) : '';
@@ -19,21 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo json_encode(["status" => "error", "message" => "Email e password sono obbligatori."]);
         exit;
     }
-
-    $sql = "SELECT * FROM users WHERE email = '$email'";
-    $result = $conn->query($sql);
-    if($result->num_rows > 0) {
-        echo json_encode(["status" => "error", "message" => "Utente già registrato."]);
-        exit;
-    }
-
-    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-
-    $sql = "INSERT INTO users (email, password) VALUES ('$email', '$hashed_password')";
-    if($conn->query($sql) === TRUE) {
-        echo json_encode(["status" => "success", "message" => "Registrazione avvenuta con successo."]);
-    } else {
-        echo json_encode(["status" => "error", "message" => "Errore durante la registrazione."]);
-    }
+    
+    $userController = new UserController($conn);
+    $result = $userController->register($email, $password);
+    echo json_encode($result);
+    exit;
 }
+
+echo json_encode(["status" => "error", "message" => "Metodo non consentito."]);
+exit;
 ?>
