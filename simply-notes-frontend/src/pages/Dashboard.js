@@ -1,5 +1,4 @@
-// src/pages/Dashboard.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Container,
@@ -50,18 +49,11 @@ const Dashboard = () => {
     severity: 'success'
   });
 
-  // Stato per il loader
+  // Stato per loader
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!token) {
-      window.location.href = "/login";
-      return;
-    }
-    fetchNotes();
-  }, [token]);
-
-  const fetchNotes = async () => {
+  // Definiamo fetchNotes con useCallback
+  const fetchNotes = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch('https://simply-notes-production.up.railway.app/notes.php', {
@@ -78,7 +70,15 @@ const Dashboard = () => {
       setError('Errore di connessione al server');
     }
     setLoading(false);
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) {
+      window.location.href = "/login";
+      return;
+    }
+    fetchNotes();
+  }, [token, fetchNotes]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -93,7 +93,7 @@ const Dashboard = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  // Aggiungi nota
+  // Aggiunta nuova nota
   const handleAddNote = async () => {
     try {
       const res = await fetch('https://simply-notes-production.up.railway.app/notes.php', {
@@ -123,7 +123,7 @@ const Dashboard = () => {
     }
   };
 
-  // Apri dialog modifica
+  // Apertura dialog di modifica
   const handleEditOpen = (note) => {
     setSelectedNote(note);
     setEditTitle(note.title);
@@ -131,7 +131,7 @@ const Dashboard = () => {
     setOpenEdit(true);
   };
 
-  // Salva modifica
+  // Salvataggio modifica nota
   const handleEditNote = async () => {
     if (!selectedNote) return;
     try {
@@ -162,7 +162,7 @@ const Dashboard = () => {
     }
   };
 
-  // Elimina nota
+  // Eliminazione nota
   const handleDeleteNote = async (noteId) => {
     if (!window.confirm("Sei sicuro di voler eliminare questa nota?")) return;
     try {
@@ -211,7 +211,7 @@ const Dashboard = () => {
 
   return (
     <>
-      {/* Helmet per impostare il titolo della pagina */}
+      {/* Helmet per il titolo della pagina */}
       <Helmet>
         <title>Dashboard - Simply Notes</title>
       </Helmet>
@@ -256,7 +256,7 @@ const Dashboard = () => {
           </Stack>
 
           {/* Ricerca e Ordinamento */}
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 2 }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 2}}>
             <TextField
               label="Cerca nota..."
               variant="outlined"
@@ -286,7 +286,7 @@ const Dashboard = () => {
             </Typography>
           )}
 
-          {/* Loader: se loading è true, mostra un CircularProgress */}
+          {/* Loader */}
           {loading ? (
             <Stack alignItems="center" sx={{ mt: 4 }}>
               <CircularProgress />
