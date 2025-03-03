@@ -54,7 +54,7 @@ const Dashboard = () => {
       return;
     }
     fetchNotes();
-  }, [token]);
+  }, [fetchNotes, token]);
 
   const fetchNotes = async () => {
     try {
