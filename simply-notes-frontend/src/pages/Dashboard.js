@@ -18,8 +18,10 @@ import {
   Alert,
   Grid,
   MenuItem,
+  CircularProgress,
   GlobalStyles
 } from '@mui/material';
+import { Helmet } from 'react-helmet';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -45,8 +47,11 @@ const Dashboard = () => {
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
-    severity: 'success' 
+    severity: 'success'
   });
+
+  // Stato per il loader
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -54,9 +59,10 @@ const Dashboard = () => {
       return;
     }
     fetchNotes();
-  }, [fetchNotes, token]);
+  }, [token]);
 
   const fetchNotes = async () => {
+    setLoading(true);
     try {
       const res = await fetch('https://simply-notes-production.up.railway.app/notes.php', {
         method: 'GET',
@@ -71,6 +77,7 @@ const Dashboard = () => {
     } catch (err) {
       setError('Errore di connessione al server');
     }
+    setLoading(false);
   };
 
   const handleLogout = () => {
@@ -86,7 +93,7 @@ const Dashboard = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  // Aggiunta nuova nota
+  // Aggiungi nota
   const handleAddNote = async () => {
     try {
       const res = await fetch('https://simply-notes-production.up.railway.app/notes.php', {
@@ -116,7 +123,7 @@ const Dashboard = () => {
     }
   };
 
-  // Apertura dialog modifica
+  // Apri dialog modifica
   const handleEditOpen = (note) => {
     setSelectedNote(note);
     setEditTitle(note.title);
@@ -124,7 +131,7 @@ const Dashboard = () => {
     setOpenEdit(true);
   };
 
-  // Salvataggio modifica
+  // Salva modifica
   const handleEditNote = async () => {
     if (!selectedNote) return;
     try {
@@ -155,7 +162,7 @@ const Dashboard = () => {
     }
   };
 
-  // Eliminazione nota
+  // Elimina nota
   const handleDeleteNote = async (noteId) => {
     if (!window.confirm("Sei sicuro di voler eliminare questa nota?")) return;
     try {
@@ -182,13 +189,11 @@ const Dashboard = () => {
     }
   };
 
-  // Filtra note
+  // Filtra e ordina le note
   const filteredNotes = notes.filter(note =>
     note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     note.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  // Ordina note
   const sortedNotes = [...filteredNotes].sort((a, b) => {
     switch (sortOption) {
       case 'date_desc':
@@ -206,7 +211,12 @@ const Dashboard = () => {
 
   return (
     <>
-      {/* Definiamo l'animazione gradiente a livello globale, come in Login/Register */}
+      {/* Helmet per impostare il titolo della pagina */}
+      <Helmet>
+        <title>Dashboard - Simply Notes</title>
+      </Helmet>
+
+      {/* GlobalStyles per l'animazione del background */}
       <GlobalStyles styles={{
         '@keyframes gradientAnimation': {
           '0%': { backgroundPosition: '0% 50%' },
@@ -215,13 +225,13 @@ const Dashboard = () => {
         }
       }} />
 
-      {/* Box a schermo intero con gradiente animato */}
+      {/* Box a schermo intero con sfondo animato */}
       <Box
         sx={{
           minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
-          background: 'linear-gradient(270deg,rgb(21, 202, 12),rgb(123, 160, 254), #86a8e7, #91eac9)',
+          background: 'linear-gradient(270deg, rgb(21,202,12), rgb(123,160,254), #86a8e7, #91eac9)',
           backgroundSize: '400% 400%',
           animation: 'gradientAnimation 12s ease infinite',
           p: 2
@@ -239,43 +249,35 @@ const Dashboard = () => {
               >
                 Aggiungi Nota
               </Button>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={handleLogout}
-              >
+              <Button variant="contained" color="error" onClick={handleLogout}>
                 Logout
               </Button>
             </div>
           </Stack>
 
-          {/* Campo di ricerca e ordinamento */}
-          <Card sx={{ mb: 2, boxShadow: 3 }}>
-            <CardContent>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                <TextField
-                  label="Cerca nota..."
-                  variant="outlined"
-                  fullWidth
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <TextField
-                  select
-                  label="Ordina per"
-                  value={sortOption}
-                  onChange={(e) => setSortOption(e.target.value)}
-                  variant="outlined"
-                  sx={{ minWidth: 180 }}
-                >
-                  <MenuItem value="date_desc">Data (più recenti-più vecchie)</MenuItem>
-                  <MenuItem value="date_asc">Data (più vecchi-più)</MenuItem>
-                  <MenuItem value="title_asc">Titolo A-Z</MenuItem>
-                  <MenuItem value="title_desc">Titolo Z-A</MenuItem>
-                </TextField>
-              </Stack>
-            </CardContent>
-          </Card>
+          {/* Ricerca e Ordinamento */}
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 2 }}>
+            <TextField
+              label="Cerca nota..."
+              variant="outlined"
+              fullWidth
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <TextField
+              select
+              label="Ordina per"
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              variant="outlined"
+              sx={{ minWidth: 180 }}
+            >
+              <MenuItem value="date_desc">Data (più recenti-più vecchie)</MenuItem>
+              <MenuItem value="date_asc">Data (più vecchi-più)</MenuItem>
+              <MenuItem value="title_asc">Titolo A-Z</MenuItem>
+              <MenuItem value="title_desc">Titolo Z-A</MenuItem>
+            </TextField>
+          </Stack>
 
           {/* Messaggio di errore */}
           {error && (
@@ -284,31 +286,37 @@ const Dashboard = () => {
             </Typography>
           )}
 
-          {/* Lista delle note in Grid */}
-          <Grid container spacing={2}>
-            {sortedNotes.map(note => (
-              <Grid item xs={12} sm={6} md={4} key={note.id}>
-                <Card sx={{ boxShadow: 3 }}>
-                  <CardContent>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                        {note.title}
-                      </Typography>
-                      <div>
-                        <IconButton color="primary" onClick={() => handleEditOpen(note)}>
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton color="error" onClick={() => handleDeleteNote(note.id)}>
-                          <DeleteIcon />
-                        </IconButton>
-                      </div>
-                    </Stack>
-                    <Typography sx={{ mt: 1 }}>{note.content}</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+          {/* Loader: se loading è true, mostra un CircularProgress */}
+          {loading ? (
+            <Stack alignItems="center" sx={{ mt: 4 }}>
+              <CircularProgress />
+            </Stack>
+          ) : (
+            <Grid container spacing={2}>
+              {sortedNotes.map(note => (
+                <Grid item xs={12} sm={6} md={4} key={note.id}>
+                  <Card sx={{ boxShadow: 3 }}>
+                    <CardContent>
+                      <Stack direction="row" justifyContent="space-between" alignItems="center">
+                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                          {note.title}
+                        </Typography>
+                        <div>
+                          <IconButton color="primary" onClick={() => handleEditOpen(note)}>
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton color="error" onClick={() => handleDeleteNote(note.id)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </div>
+                      </Stack>
+                      <Typography sx={{ mt: 1 }}>{note.content}</Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          )}
         </Container>
       </Box>
 
@@ -368,7 +376,7 @@ const Dashboard = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar */}
+      {/* Snackbar per notifiche */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
