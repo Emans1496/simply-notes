@@ -6,7 +6,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 // Carica le variabili d'ambiente dal file .env
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+$dotenv->safeLoad();
 
 // Usa le variabili d'ambiente
 $host = $_ENV['DB_HOST'];
