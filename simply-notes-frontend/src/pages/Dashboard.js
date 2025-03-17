@@ -56,7 +56,7 @@ const Dashboard = () => {
   const fetchNotes = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('https://simply-notes-production.up.railway.app/notes.php', {
+      const res = await fetch('https://simply-notes-production.up.railway.app/notes', {
         method: 'GET',
         headers: { 'Authorization': 'Bearer ' + token }
       });
@@ -96,7 +96,7 @@ const Dashboard = () => {
   // Aggiunta nuova nota
   const handleAddNote = async () => {
     try {
-      const res = await fetch('https://simply-notes-production.up.railway.app/notes.php', {
+      const res = await fetch('https://simply-notes-production.up.railway.app/notes', {
         method: 'POST',
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -135,7 +135,7 @@ const Dashboard = () => {
   const handleEditNote = async () => {
     if (!selectedNote) return;
     try {
-      const res = await fetch('https://simply-notes-production.up.railway.app/notes.php', {
+      const res = await fetch('https://simply-notes-production.up.railway.app/notes', {
         method: 'POST',
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -166,7 +166,7 @@ const Dashboard = () => {
   const handleDeleteNote = async (noteId) => {
     if (!window.confirm("Sei sicuro di voler eliminare questa nota?")) return;
     try {
-      const res = await fetch('https://simply-notes-production.up.railway.app/notes.php', {
+      const res = await fetch('https://simply-notes-production.up.railway.app/notes', {
         method: 'POST',
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",

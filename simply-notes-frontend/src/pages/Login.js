@@ -27,7 +27,7 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch('https://simply-notes-production.up.railway.app/login.php', {
+      const res = await fetch('https://simply-notes-production.up.railway.app/login', {
         method: 'POST',
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ email, password })
