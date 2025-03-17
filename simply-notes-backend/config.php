@@ -14,6 +14,8 @@ $username = $_ENV['DB_USERNAME'];
 $password = $_ENV['DB_PASSWORD'];
 $database = $_ENV['DB_DATABASE'];
 $port = $_ENV['DB_PORT'];
+$jwt_secret = $_ENV['JWT_SECRET'];
+
 
 // Connessione al database
 $conn = new mysqli($host, $username, $password, $database, $port);

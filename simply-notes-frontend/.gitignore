@@ -22,10 +22,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-/simply-notes-backend/.env
-/simply-notes-backend/.env.local
-/simply-notes-backend/.env.development.local
-/simply-notes-backend/.env.test.local
-/simply-notes-backend/.env.production.local
+simply-notes-backend/.env
+simply-notes-backend/.env.local
+simply-notes-backend/.env.development.local
+simply-notes-backend/.env.test.local
+simply-notes-backend/.env.production.local
 
 simply-notes-backend/vendor
